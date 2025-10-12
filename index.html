@@ -21,7 +21,7 @@
         </a-assets>
 
         <!--Aqui definimos el marcador que sera necesario para mostrar el modelo-->
-        <a-marker type="barcode" value="5">
+        <a-marker type="pattern" url="marker.patt">
             <!--Aqui pondremos los ajustes(posicion,rotacion,escala,nombre del modelo, animacion) de nuestro modelo 3D-->
             <a-entity position="0 0 0" rotation="0 0 0" scale="0.60 0.60 0.60" gltf-model="#spartan" animation__rotate="property: rotation; dur: 8000; easing: linear; dir: normal; from: 0 0 0; to: 0 360 0; loop: true"></a-entity>
         </a-marker>
@@ -31,5 +31,3 @@
 </body>
 
 </html>
-
-<!--Hecho por Daniel Quintero❤-->
