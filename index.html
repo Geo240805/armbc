@@ -18,13 +18,24 @@
         <a-assets>
             <!--Este sera el modelo del drink-->
             <a-assets-item id="drink" src="./drink/drink.glb"></a-assets-item>
+            <a-assets-item id="spartan" src="./Spartan/scene.gltf"></a-assets-item>
         </a-assets>
 
         <!--Aqui definimos el marcador que sera necesario para mostrar el modelo-->
         <a-marker type="pattern" url="marker.patt">
             <!--Aqui pondremos los ajustes(posicion,rotacion,escala,nombre del modelo, animacion) de nuestro modelo 3D-->
-            <a-entity position="0 0.1 0" rotation="0 0 0" scale="10.50 10.50 10.50" gltf-model="#drink" animation__rotate="property: rotation; dur: 8000; easing: linear; dir: normal; from: 0 0 0; to: 0 360 0; loop: true"></a-entity>
+            <a-entity position="0 0.1 0" rotation="0 0 0" scale="10.50 6.50 7.50" gltf-model="#drink" animation__rotate="property: rotation; dur: 8000; easing: linear; dir: normal; from: 0 0 0; to: 0 360 0; loop: true"></a-entity>
         </a-marker>
+
+        <a-marker type="pattern" url="markerdos.patt">
+            <a-entity
+                gltf-model="#spartan"
+                scale="0.6 0.6 0.6"
+                position="0 0 0"
+                rotation="0 0 0">
+            </a-entity>
+        </a-marker>
+        
         <!--Esta entidad sera la camara-->
         <a-entity camera></a-entity>
     </a-scene>
