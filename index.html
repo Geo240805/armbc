@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="author" content="Daniel Quintero Henriquez">
+    <meta name="author" content="Martina Beach Club">
     <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Realidad Aumentada</title>
@@ -22,19 +22,16 @@
         </a-assets>
 
         <!--Aqui definimos el marcador que sera necesario para mostrar el modelo-->
-        <a-marker type="pattern" url="marker.patt">
+        <a-marker type="pattern" url=" AQUIVAELPRINCIPAL.patt">
             <!--Aqui pondremos los ajustes(posicion,rotacion,escala,nombre del modelo, animacion) de nuestro modelo 3D-->
             <a-entity position="0 0.1 0" rotation="0 0 0" scale="10.50 10.50 10.50" gltf-model="#drink" animation__rotate="property: rotation; dur: 8000; easing: linear; dir: normal; from: 0 0 0; to: 0 360 0; loop: true"></a-entity>
         </a-marker>
 
         <a-marker type="pattern" url="markerdos.patt">
-            <a-entity
-                gltf-model="#drink"
-                scale="0.6 0.6 0.6"
-                position="0 0 0"
-                rotation="0 0 0">
-            </a-entity>
+            <!--Aqui pondremos los ajustes(posicion,rotacion,escala,nombre del modelo, animacion) de nuestro modelo 3D-->
+            <a-entity position="0 0.1 0" rotation="0 0 0" scale="10.50 10.50 10.50" gltf-model="#drink" animation__rotate="property: rotation; dur: 8000; easing: linear; dir: normal; from: 0 0 0; to: 0 360 0; loop: true"></a-entity>
         </a-marker>
+
 
         <!--Esta entidad sera la camara-->
         <a-entity camera></a-entity>
