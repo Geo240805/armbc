@@ -22,12 +22,14 @@
 
         <a-marker type="pattern" url="marker.patt">
             <a-entity 
-                position="0 0.1 0" rotation="0 0 0" 
-                scale="3 3 3" 
-                gltf-model="#drink" 
-                gesture-handler
-                minScale="1" 
-                maxScale="8"> 
+                gltf-model="#drink"
+                class="clickable" 
+                position="0 0.1 0" rotation="0 0 0" scale="3 3 3"
+        
+                animation__rotate="property: rotation; dur: 8000; easing: linear; loop: true; from: 0 0 0; to: 0 360 0; enabled: false;"
+
+                event-set__enter="_event: mouseenter; animation__rotate.enabled: true"
+                event-set__leave="_event: mouseleave; animation__rotate.enabled: false">
             </a-entity>
         </a-marker>
         
