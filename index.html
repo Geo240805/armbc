@@ -15,47 +15,65 @@
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script> 
 
     <script>
-        AFRAME.registerComponent('drag-y-only', {
+        AFRAME.registerComponent('full-drag-controls', {
             init: function () {
-                let isDragging = false;
+                let isOneFingerDrag = false;
                 let lastPosition = null;
                 const el = this.el;
+                
+                // Define los límites de altura
+                const MIN_Y = 0.05; // Altura mínima (para que no se meta en el marcador)
+                const MAX_Y = 1.0;  // Altura máxima (1 metro sobre el marcador)
 
+                // Escucha el inicio del arrastre (un dedo)
                 el.sceneEl.addEventListener('onefingerstart', (e) => {
-                    isDragging = true;
+                    isOneFingerDrag = true;
                     lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
                 });
 
+                // Escucha el movimiento (un dedo)
                 el.sceneEl.addEventListener('onefingermove', (e) => {
-                    if (!isDragging) return;
+                    if (!isOneFingerDrag) return;
 
                     let deltaX = e.detail.position.x - lastPosition.x;
                     let deltaY = e.detail.position.y - lastPosition.y;
                     let pos = el.getAttribute('position');
                     let rot = el.getAttribute('rotation');
 
-                    // 1. ROTACIÓN (Eje Y) - Gira solo con arrastre horizontal
-                    let newRotY = rot.y + deltaX * 0.5;
-                    // Mantenemos X y Z de la rotación actual para no bloquear otras rotaciones (si las hubiera)
-                    el.setAttribute('rotation', { x: rot.x, y: newRotY, z: rot.z }); 
-
-                    // 2. POSICIÓN (Eje Y) - Mueve arriba/abajo con arrastre vertical
-                    let newPosY = pos.y + deltaY * -0.005; // Ajusta el factor -0.005 para sensibilidad
+                    // 1. MOVIMIENTO HORIZONTAL (X/Z) - Manejado por arrastre del dedo
+                    // Usamos deltaX para Z y deltaY para X (es el mapeo más común para mover en el plano)
+                    let newPosX = pos.x + deltaY * 0.005; // Ajustar sensibilidad
+                    let newPosZ = pos.z + deltaX * 0.005; // Ajustar sensibilidad
                     
-                    // === LÍMITE DE MOVIMIENTO VERTICAL (EJE Y) ===
-                    const MIN_Y = 0.05; // Altura mínima (para que no se meta en el marcador)
-                    const MAX_Y = 1.0;  // Altura máxima (1 metro sobre el marcador)
+                    el.setAttribute('position', { x: newPosX, y: pos.y, z: newPosZ });
                     
-                    newPosY = Math.min(Math.max(newPosY, MIN_Y), MAX_Y);
-                    // ============================================
-
-                    el.setAttribute('position', { x: pos.x, y: newPosY, z: pos.z });
-
                     lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
                 });
 
+                // Escucha el final del arrastre
                 el.sceneEl.addEventListener('onefingerend', () => {
-                    isDragging = false;
+                    isOneFingerDrag = false;
+                });
+
+                // --- GESTOS DE DOS DEDOS (Rotación Y y Movimiento Y Limitado) ---
+
+                el.sceneEl.addEventListener('twofingermove', (e) => {
+                    let rot = el.getAttribute('rotation');
+                    let pos = el.getAttribute('position');
+                    
+                    // 1. Rotación en Y con arrastre de DOS dedos (HORIZONTAL)
+                    let newRotY = rot.y + e.detail.positionChange.x * 0.5;
+
+                    // 2. Movimiento vertical (Eje Y) LIMITADO con arrastre de DOS dedos (VERTICAL)
+                    // Calcula la nueva posición Y sin aplicar el límite
+                    let calculatedPosY = pos.y + e.detail.positionChange.y * -0.005; 
+                    
+                    // Aplica la limitación de movimiento vertical
+                    let finalPosY = Math.min(Math.max(calculatedPosY, MIN_Y), MAX_Y);
+
+                    // Actualizar la rotación y posición Y
+                    el.setAttribute('rotation', { x: rot.x, y: newRotY, z: rot.z });
+                    el.setAttribute('position', { x: pos.x, y: finalPosY, z: pos.z });
                 });
             }
         });
@@ -79,7 +97,7 @@
                 position="0 0.05 0" rotation="0 0 0" 
                 scale="3 3 3" gltf-model="#drink" 
                 
-                gesture-handler                 pinch-scale="min: 1; max: 8"    drag-y-only                     >
+                pinch-scale="min: 1; max: 8"    full-drag-controls              >
             </a-entity>
         </a-marker>
         
@@ -88,9 +106,8 @@
                 position="0 0.05 0" rotation="0 0 0" 
                 scale="3 3 3" gltf-model="#arizona"
                 
-                gesture-handler
                 pinch-scale="min: 1; max: 8"
-                drag-y-only
+                full-drag-controls
                 >
             </a-entity>
         </a-marker>
