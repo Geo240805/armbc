@@ -6,7 +6,7 @@
     <meta name="author" content="Martina Beach Club">
     <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realidad Aumentada Interacción Completa</title>
+    <title>AR Interacción Final</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -15,37 +15,47 @@
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script> 
 
     <script>
-        AFRAME.registerComponent('rotation-restriction', {
+        AFRAME.registerComponent('drag-y-only', {
             init: function () {
-                let isRotating = false;
+                let isDragging = false;
                 let lastPosition = null;
                 const el = this.el;
 
-                // Escucha el inicio del arrastre de UN dedo
                 el.sceneEl.addEventListener('onefingerstart', (e) => {
-                    isRotating = true;
+                    isDragging = true;
                     lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
                 });
 
-                // Escucha el movimiento de UN dedo
                 el.sceneEl.addEventListener('onefingermove', (e) => {
-                    if (!isRotating) return;
+                    if (!isDragging) return;
 
-                    // Calcula el cambio de posición horizontal
                     let deltaX = e.detail.position.x - lastPosition.x;
+                    let deltaY = e.detail.position.y - lastPosition.y;
+                    let pos = el.getAttribute('position');
                     let rot = el.getAttribute('rotation');
-                    
-                    // Solo aplica el cambio al Eje Y (yaw)
-                    let newRotY = rot.y + deltaX * 0.5; // Multiplica por 0.5 para controlar la velocidad
 
-                    el.setAttribute('rotation', { x: 0, y: newRotY, z: 0 }); 
+                    // 1. ROTACIÓN (Eje Y) - Gira solo con arrastre horizontal
+                    let newRotY = rot.y + deltaX * 0.5;
+                    // Mantenemos X y Z de la rotación actual para no bloquear otras rotaciones (si las hubiera)
+                    el.setAttribute('rotation', { x: rot.x, y: newRotY, z: rot.z }); 
+
+                    // 2. POSICIÓN (Eje Y) - Mueve arriba/abajo con arrastre vertical
+                    let newPosY = pos.y + deltaY * -0.005; // Ajusta el factor -0.005 para sensibilidad
+                    
+                    // === LÍMITE DE MOVIMIENTO VERTICAL (EJE Y) ===
+                    const MIN_Y = 0.05; // Altura mínima (para que no se meta en el marcador)
+                    const MAX_Y = 1.0;  // Altura máxima (1 metro sobre el marcador)
+                    
+                    newPosY = Math.min(Math.max(newPosY, MIN_Y), MAX_Y);
+                    // ============================================
+
+                    el.setAttribute('position', { x: pos.x, y: newPosY, z: pos.z });
 
                     lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
                 });
 
-                // Escucha el final del arrastre de UN dedo
                 el.sceneEl.addEventListener('onefingerend', () => {
-                    isRotating = false;
+                    isDragging = false;
                 });
             }
         });
@@ -61,15 +71,27 @@
         
         <a-assets>
             <a-assets-item id="drink" src="./drink/drink.glb"></a-assets-item>
+            <a-assets-item id="arizona" src="./arizona/Arizona.glb"></a-assets-item>
             </a-assets>
 
         <a-marker type="pattern" url="marker.patt">
             <a-entity 
-                position="0 0.05 0"             rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#drink"
+                position="0 0.05 0" rotation="0 0 0" 
+                scale="3 3 3" gltf-model="#drink" 
                 
+                gesture-handler                 pinch-scale="min: 1; max: 8"    drag-y-only                     >
+            </a-entity>
+        </a-marker>
+        
+        <a-marker type="pattern" url="marker1.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" 
+                scale="3 3 3" gltf-model="#arizona"
                 
-                gesture-handler                 pinch-scale="min: 1; max: 8"    rotation-restriction            >
+                gesture-handler
+                pinch-scale="min: 1; max: 8"
+                drag-y-only
+                >
             </a-entity>
         </a-marker>
         
