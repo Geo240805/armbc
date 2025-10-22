@@ -6,7 +6,7 @@
     <meta name="author" content="Martina Beach Club">
     <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Martina AR Menú - Gestos Final</title>
+    <title>Martina AR Menú - Interacción Final</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -30,7 +30,7 @@
                 // Aplicamos la rotación horizontal (event.detail.positionChange.x) al eje Y
                 rotation.y += event.detail.positionChange.x * 0.5; 
                 
-                // Mantenemos X y Z estáticos
+                // Mantenemos X y Z estáticos (0)
                 this.el.setAttribute('rotation', rotation);
             }
         });
