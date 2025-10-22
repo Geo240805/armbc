@@ -3,8 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>AR Interacción Final (v3)</title>
+    <meta name="author" content="Martina Beach Club">
+    <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martina AR Menú - Interacción Completa</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -19,26 +21,23 @@
                 this.handleMove = this.handleMove.bind(this);
                 this.el.addEventListener('twofingermove', this.handleMove);
                 
-                // LÍMITES DE MOVIMIENTO VERTICAL
+                // --- LÍMITES Y SENSIBILIDAD ---
                 this.MIN_Y = 0.05;
                 this.MAX_Y = 1.0;
-                this.SENSITIVITY_POS = 0.005; // Sensibilidad de movimiento Y
-
-                this.el.addEventListener('gesturemove', function(e) {
-                    // Prevenir la rotación estándar del gesto de dos dedos si quieres usar solo esta
-                    e.preventDefault(); 
-                });
+                this.SENSITIVITY_POS = 0.01; // Sensibilidad de movimiento Y (Ajustado)
+                this.SENSITIVITY_ROT = 0.5;
             },
             handleMove: function(event) {
                 let rotation = this.el.getAttribute('rotation');
                 let position = this.el.getAttribute('position');
                 
-                // 1. ROTACIÓN (Eje Y) - Arrastre horizontal (event.detail.positionChange.x)
-                rotation.y += event.detail.positionChange.x * 0.5; 
+                // 1. ROTACIÓN (Eje Y) - Arrastre horizontal
+                rotation.y += event.detail.positionChange.x * this.SENSITIVITY_ROT; 
                 this.el.setAttribute('rotation', rotation);
 
-                // 2. MOVIMIENTO VERTICAL (Eje Y) - Arrastre vertical (event.detail.positionChange.y)
-                let calculatedPosY = position.y + event.detail.positionChange.y * -this.SENSITIVITY_POS;
+                // 2. MOVIMIENTO VERTICAL (Eje Y) - Arrastre vertical (Corregido)
+                // Usamos el signo POSITIVO para que arrastrar arriba SUBE el objeto.
+                let calculatedPosY = position.y + event.detail.positionChange.y * this.SENSITIVITY_POS;
                 
                 // Aplicar la limitación
                 let finalPosY = Math.min(Math.max(calculatedPosY, this.MIN_Y), this.MAX_Y);
@@ -60,26 +59,45 @@
         <a-assets>
             <a-assets-item id="drink" src="./drink/drink.glb"></a-assets-item>
             <a-assets-item id="arizona" src="./arizona/Arizona.glb"></a-assets-item>
+            <a-assets-item id="boing" src="./boing/Boing.glb"></a-assets-item>
+            <a-assets-item id="chamoyada" src="./chamoyada/Chamoyada.glb"></a-assets-item>
+            <a-assets-item id="electrolit" src="./electrolit/Electrolit.glb"></a-assets-item>
+            <a-assets-item id="fercho" src="./fercho/Fercho.glb"></a-assets-item>
+            <a-assets-item id="hotdog" src="./hotdog/Hotdog.glb"></a-assets-item>
         </a-assets>
 
         <a-marker type="pattern" url="marker.patt">
             <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#drink" 
-                
-                gesture-handler                 pinch-scale="min: 1; max: 8"    rotate-y-and-move-y-limited     >
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#drink" 
+                gesture-handler pinch-scale="min: 1; max: 8" rotate-y-and-move-y-limited>
             </a-entity>
         </a-marker>
         
         <a-marker type="pattern" url="marker1.patt">
             <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#arizona"
-                
-                gesture-handler
-                pinch-scale="min: 1; max: 8"
-                rotate-y-and-move-y-limited
-                >
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#arizona"
+                gesture-handler pinch-scale="min: 1; max: 8" rotate-y-and-move-y-limited>
+            </a-entity>
+        </a-marker>
+        
+        <a-marker type="pattern" url="marker2.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#boing"
+                gesture-handler pinch-scale="min: 1; max: 8" rotate-y-and-move-y-limited>
+            </a-entity>
+        </a-marker>
+        
+        <a-marker type="pattern" url="marker3.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#chamoyada"
+                gesture-handler pinch-scale="min: 1; max: 8" rotate-y-and-move-y-limited>
+            </a-entity>
+        </a-marker>
+
+        <a-marker type="pattern" url="marker4.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#electrolit"
+                gesture-handler pinch-scale="min: 1; max: 8" rotate-y-and-move-y-limited>
             </a-entity>
         </a-marker>
         
