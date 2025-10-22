@@ -6,7 +6,7 @@
     <meta name="author" content="Martina Beach Club">
     <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Interacción Final</title>
+    <title>Realidad Aumentada Interacción Completa</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -15,65 +15,37 @@
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script> 
 
     <script>
-        AFRAME.registerComponent('full-drag-controls', {
+        AFRAME.registerComponent('rotation-restriction', {
             init: function () {
-                let isOneFingerDrag = false;
+                let isRotating = false;
                 let lastPosition = null;
                 const el = this.el;
-                
-                // Define los límites de altura
-                const MIN_Y = 0.05; // Altura mínima (para que no se meta en el marcador)
-                const MAX_Y = 1.0;  // Altura máxima (1 metro sobre el marcador)
 
-                // Escucha el inicio del arrastre (un dedo)
+                // Escucha el inicio del arrastre de UN dedo
                 el.sceneEl.addEventListener('onefingerstart', (e) => {
-                    isOneFingerDrag = true;
+                    isRotating = true;
                     lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
                 });
 
-                // Escucha el movimiento (un dedo)
+                // Escucha el movimiento de UN dedo
                 el.sceneEl.addEventListener('onefingermove', (e) => {
-                    if (!isOneFingerDrag) return;
+                    if (!isRotating) return;
 
+                    // Calcula el cambio de posición horizontal
                     let deltaX = e.detail.position.x - lastPosition.x;
-                    let deltaY = e.detail.position.y - lastPosition.y;
-                    let pos = el.getAttribute('position');
                     let rot = el.getAttribute('rotation');
+                    
+                    // Solo aplica el cambio al Eje Y (yaw)
+                    let newRotY = rot.y + deltaX * 0.5; // Multiplica por 0.5 para controlar la velocidad
 
-                    // 1. MOVIMIENTO HORIZONTAL (X/Z) - Manejado por arrastre del dedo
-                    // Usamos deltaX para Z y deltaY para X (es el mapeo más común para mover en el plano)
-                    let newPosX = pos.x + deltaY * 0.005; // Ajustar sensibilidad
-                    let newPosZ = pos.z + deltaX * 0.005; // Ajustar sensibilidad
-                    
-                    el.setAttribute('position', { x: newPosX, y: pos.y, z: newPosZ });
-                    
+                    el.setAttribute('rotation', { x: 0, y: newRotY, z: 0 }); 
+
                     lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
                 });
 
-                // Escucha el final del arrastre
+                // Escucha el final del arrastre de UN dedo
                 el.sceneEl.addEventListener('onefingerend', () => {
-                    isOneFingerDrag = false;
-                });
-
-                // --- GESTOS DE DOS DEDOS (Rotación Y y Movimiento Y Limitado) ---
-
-                el.sceneEl.addEventListener('twofingermove', (e) => {
-                    let rot = el.getAttribute('rotation');
-                    let pos = el.getAttribute('position');
-                    
-                    // 1. Rotación en Y con arrastre de DOS dedos (HORIZONTAL)
-                    let newRotY = rot.y + e.detail.positionChange.x * 0.5;
-
-                    // 2. Movimiento vertical (Eje Y) LIMITADO con arrastre de DOS dedos (VERTICAL)
-                    // Calcula la nueva posición Y sin aplicar el límite
-                    let calculatedPosY = pos.y + e.detail.positionChange.y * -0.005; 
-                    
-                    // Aplica la limitación de movimiento vertical
-                    let finalPosY = Math.min(Math.max(calculatedPosY, MIN_Y), MAX_Y);
-
-                    // Actualizar la rotación y posición Y
-                    el.setAttribute('rotation', { x: rot.x, y: newRotY, z: rot.z });
-                    el.setAttribute('position', { x: pos.x, y: finalPosY, z: pos.z });
+                    isRotating = false;
                 });
             }
         });
@@ -89,26 +61,15 @@
         
         <a-assets>
             <a-assets-item id="drink" src="./drink/drink.glb"></a-assets-item>
-            <a-assets-item id="arizona" src="./arizona/Arizona.glb"></a-assets-item>
             </a-assets>
 
         <a-marker type="pattern" url="marker.patt">
             <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#drink" 
+                position="0 0.05 0"             rotation="0 0 0" 
+                scale="3 3 3" gltf-model="#drink"
                 
-                pinch-scale="min: 1; max: 8"    full-drag-controls              >
-            </a-entity>
-        </a-marker>
-        
-        <a-marker type="pattern" url="marker1.patt">
-            <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#arizona"
-                
-                pinch-scale="min: 1; max: 8"
-                full-drag-controls
-                >
+              
+                gesture-handler                 pinch-scale="min: 1; max: 8"    rotation-restriction            >
             </a-entity>
         </a-marker>
         
