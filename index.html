@@ -3,10 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="author" content="Martina Beach Club">
-    <meta name="description" content="Escena de realidad aumentada con a-frame">
+    <title>AR Interacción Final (v3)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Interacción Final con Restricciones</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -15,69 +13,38 @@
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script> 
 
     <script>
-        AFRAME.registerComponent('custom-controls', {
+        AFRAME.registerComponent('rotate-y-and-move-y-limited', {
+            dependencies: ['gesture-handler'],
             init: function () {
-                const el = this.el;
-                const sceneEl = el.sceneEl;
+                this.handleMove = this.handleMove.bind(this);
+                this.el.addEventListener('twofingermove', this.handleMove);
                 
-                // --- LÍMITES Y SENSIBILIDAD ---
-                const MIN_Y = 0.05;      // Altura mínima (para que no se meta en el marcador)
-                const MAX_Y = 1.0;       // Altura máxima (1 metro sobre el marcador)
-                const SENSITIVITY_POS = 0.003; // Sensibilidad de movimiento X/Z/Y
-                const SENSITIVITY_ROT = 0.5;   // Sensibilidad de rotación Y
-                const SENSITIVITY_SCALE = 0.005; // Sensibilidad de zoom
+                // LÍMITES DE MOVIMIENTO VERTICAL
+                this.MIN_Y = 0.05;
+                this.MAX_Y = 1.0;
+                this.SENSITIVITY_POS = 0.005; // Sensibilidad de movimiento Y
 
-                let lastScale = el.getAttribute('scale').x;
-                let lastTwoFingerSpread = null;
-
-                // --- GESTOS DE UN DEDO (Movimiento X/Z) ---
-                sceneEl.addEventListener('onefingermove', (e) => {
-                    let pos = el.getAttribute('position');
-                    
-                    // Mueve el objeto horizontalmente (X/Z) sobre el marcador
-                    let newPosX = pos.x + e.detail.positionChange.x * SENSITIVITY_POS;
-                    let newPosZ = pos.z + e.detail.positionChange.y * SENSITIVITY_POS;
-                    
-                    el.setAttribute('position', { x: newPosX, y: pos.y, z: newPosZ });
+                this.el.addEventListener('gesturemove', function(e) {
+                    // Prevenir la rotación estándar del gesto de dos dedos si quieres usar solo esta
+                    e.preventDefault(); 
                 });
+            },
+            handleMove: function(event) {
+                let rotation = this.el.getAttribute('rotation');
+                let position = this.el.getAttribute('position');
                 
-                // --- GESTOS DE DOS DEDOS (Rotación Y, Movimiento Y Limitado, y Escala) ---
-                sceneEl.addEventListener('twofingermove', (e) => {
-                    let rot = el.getAttribute('rotation');
-                    let pos = el.getAttribute('position');
-                    
-                    // 1. ROTACIÓN (Eje Y): Arrastre horizontal de dos dedos
-                    let newRotY = rot.y + e.detail.positionChange.x * SENSITIVITY_ROT;
-                    el.setAttribute('rotation', { x: rot.x, y: newRotY, z: rot.z });
-                    
-                    // 2. MOVIMIENTO VERTICAL (Eje Y): Arrastre vertical de dos dedos
-                    let calculatedPosY = pos.y + e.detail.positionChange.y * -SENSITIVITY_POS;
-                    
-                    // Aplicar la limitación de movimiento vertical
-                    let finalPosY = Math.min(Math.max(calculatedPosY, MIN_Y), MAX_Y);
+                // 1. ROTACIÓN (Eje Y) - Arrastre horizontal (event.detail.positionChange.x)
+                rotation.y += event.detail.positionChange.x * 0.5; 
+                this.el.setAttribute('rotation', rotation);
 
-                    // Actualizar posición Y
-                    el.setAttribute('position', { x: pos.x, y: finalPosY, z: pos.z });
-
-                    // 3. ESCALADO (ZOOM)
-                    if (lastTwoFingerSpread !== null) {
-                        let spreadChange = e.detail.spread - lastTwoFingerSpread;
-                        let newScale = lastScale + spreadChange * SENSITIVITY_SCALE;
-                        
-                        // Aplicar límites de escala (ej: Mínimo 0.5, Máximo 8.0)
-                        newScale = Math.min(Math.max(newScale, 0.5), 8.0);
-                        
-                        el.setAttribute('scale', `${newScale} ${newScale} ${newScale}`);
-                        lastScale = newScale;
-                    }
-                    lastTwoFingerSpread = e.detail.spread;
-                });
-
-                // Restablecer el spread al terminar el gesto de dos dedos
-                sceneEl.addEventListener('twofingerend', () => {
-                    lastTwoFingerSpread = null;
-                    lastScale = el.getAttribute('scale').x;
-                });
+                // 2. MOVIMIENTO VERTICAL (Eje Y) - Arrastre vertical (event.detail.positionChange.y)
+                let calculatedPosY = position.y + event.detail.positionChange.y * -this.SENSITIVITY_POS;
+                
+                // Aplicar la limitación
+                let finalPosY = Math.min(Math.max(calculatedPosY, this.MIN_Y), this.MAX_Y);
+                
+                // Actualizar la posición Y
+                this.el.setAttribute('position', { x: position.x, y: finalPosY, z: position.z });
             }
         });
     </script>
@@ -93,19 +60,14 @@
         <a-assets>
             <a-assets-item id="drink" src="./drink/drink.glb"></a-assets-item>
             <a-assets-item id="arizona" src="./arizona/Arizona.glb"></a-assets-item>
-            <a-assets-item id="boing" src="./boing/Boing.glb"></a-assets-item>
-            <a-assets-item id="chamoyada" src="./chamoyada/Chamoyada.glb"></a-assets-item>
-            <a-assets-item id="electrolit" src="./electrolit/Electrolit.glb"></a-assets-item>
-            <a-assets-item id="fercho" src="./fercho/Fercho.glb"></a-assets-item>
-            <a-assets-item id="hotdog" src="./hotdog/Hotdog.glb"></a-assets-item>
         </a-assets>
 
         <a-marker type="pattern" url="marker.patt">
             <a-entity 
                 position="0 0.05 0" rotation="0 0 0" 
                 scale="3 3 3" gltf-model="#drink" 
-                custom-controls
-                >
+                
+                gesture-handler                 pinch-scale="min: 1; max: 8"    rotate-y-and-move-y-limited     >
             </a-entity>
         </a-marker>
         
@@ -113,34 +75,10 @@
             <a-entity 
                 position="0 0.05 0" rotation="0 0 0" 
                 scale="3 3 3" gltf-model="#arizona"
-                custom-controls
-                >
-            </a-entity>
-        </a-marker>
-        
-        <a-marker type="pattern" url="marker2.patt">
-            <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#boing"
-                custom-controls
-                >
-            </a-entity>
-        </a-marker>
-        
-        <a-marker type="pattern" url="marker3.patt">
-            <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#chamoyada"
-                custom-controls
-                >
-            </a-entity>
-        </a-marker>
-
-        <a-marker type="pattern" url="marker4.patt">
-            <a-entity 
-                position="0 0.05 0" rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#electrolit"
-                custom-controls
+                
+                gesture-handler
+                pinch-scale="min: 1; max: 8"
+                rotate-y-and-move-y-limited
                 >
             </a-entity>
         </a-marker>
