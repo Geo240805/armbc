@@ -6,7 +6,7 @@
     <meta name="author" content="Martina Beach Club">
     <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realidad Aumentada Interacción Completa</title>
+    <title>Martina AR Menú - Gestos</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -15,38 +15,23 @@
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script> 
 
     <script>
-        AFRAME.registerComponent('rotation-restriction', {
+        AFRAME.registerComponent('rotate-y-only-gestures', {
+            dependencies: ['gesture-handler'],
             init: function () {
-                let isRotating = false;
-                let lastPosition = null;
-                const el = this.el;
-
-                // Escucha el inicio del arrastre de UN dedo
-                el.sceneEl.addEventListener('onefingerstart', (e) => {
-                    isRotating = true;
-                    lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
-                });
-
-                // Escucha el movimiento de UN dedo
-                el.sceneEl.addEventListener('onefingermove', (e) => {
-                    if (!isRotating) return;
-
-                    // Calcula el cambio de posición horizontal
-                    let deltaX = e.detail.position.x - lastPosition.x;
-                    let rot = el.getAttribute('rotation');
-                    
-                    // Solo aplica el cambio al Eje Y (yaw)
-                    let newRotY = rot.y + deltaX * 0.5; // Multiplica por 0.5 para controlar la velocidad
-
-                    el.setAttribute('rotation', { x: 0, y: newRotY, z: 0 }); 
-
-                    lastPosition = { x: e.detail.position.x, y: e.detail.position.y };
-                });
-
-                // Escucha el final del arrastre de UN dedo
-                el.sceneEl.addEventListener('onefingerend', () => {
-                    isRotating = false;
-                });
+                this.handleRotation = this.handleRotation.bind(this);
+                // Escuchamos el arrastre de DOS dedos
+                this.el.addEventListener('twofingermove', this.handleRotation);
+                
+                // Aseguramos que el 'gesture-handler' no mueva el objeto con 1 dedo.
+                this.el.setAttribute('gesture-handler', 'allowMove: false;'); 
+            },
+            handleRotation: function(event) {
+                let rotation = this.el.getAttribute('rotation');
+                // Aplicamos la rotación horizontal (event.detail.positionChange.x) al eje Y
+                rotation.y += event.detail.positionChange.x * 0.5; 
+                
+                // Mantenemos X y Z estáticos
+                this.el.setAttribute('rotation', rotation);
             }
         });
     </script>
@@ -61,18 +46,63 @@
         
         <a-assets>
             <a-assets-item id="drink" src="./drink/drink.glb"></a-assets-item>
-            </a-assets>
+            <a-assets-item id="arizona" src="./arizona/Arizona.glb"></a-assets-item>
+            <a-assets-item id="boing" src="./boing/Boing.glb"></a-assets-item>
+            <a-assets-item id="chamoyada" src="./chamoyada/Chamoyada.glb"></a-assets-item>
+            <a-assets-item id="electrolit" src="./electrolit/Electrolit.glb"></a-assets-item>
+            <a-assets-item id="fercho" src="./fercho/Fercho.glb"></a-assets-item>
+            <a-assets-item id="hotdog" src="./hotdog/Hotdog.glb"></a-assets-item>
+        </a-assets>
 
         <a-marker type="pattern" url="marker.patt">
             <a-entity 
-                position="0 0.05 0"             rotation="0 0 0" 
-                scale="3 3 3" gltf-model="#drink"
-                
-              
-                gesture-handler                 pinch-scale="min: 1; max: 8"    rotation-restriction            >
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#drink"
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
+            </a-entity>
+        </a-marker>
+
+        <a-marker type="pattern" url="marker1.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#arizona" 
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
+            </a-entity>
+        </a-marker>
+
+        <a-marker type="pattern" url="marker2.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#boing"
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
+            </a-entity>
+        </a-marker>
+
+        <a-marker type="pattern" url="marker3.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#chamoyada"
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
+            </a-entity>
+        </a-marker>
+
+        <a-marker type="pattern" url="marker4.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#electrolit"
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
             </a-entity>
         </a-marker>
         
+        <a-marker type="pattern" url="marker5.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#fercho"
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
+            </a-entity>
+        </a-marker>
+        
+        <a-marker type="pattern" url="marker6.patt">
+            <a-entity 
+                position="0 0.05 0" rotation="0 0 0" scale="3 3 3" gltf-model="#hotdog"
+                pinch-scale="min: 1; max: 8" rotate-y-only-gestures>
+            </a-entity>
+        </a-marker>
+
         <a-entity camera></a-entity>
     </a-scene>
 </body>
