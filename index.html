@@ -6,7 +6,7 @@
     <meta name="author" content="Martina Beach Club">
     <meta name="description" content="Escena de realidad aumentada con a-frame">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Martina AR Menú - Gestos</title>
+    <title>Martina AR Menú - Gestos Final</title>
     
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/dev/aframe/build/aframe-ar.js"></script>
@@ -22,7 +22,7 @@
                 // Escuchamos el arrastre de DOS dedos
                 this.el.addEventListener('twofingermove', this.handleRotation);
                 
-                // Aseguramos que el 'gesture-handler' no mueva el objeto con 1 dedo.
+                // Bloqueamos el movimiento (arrastrar X/Z) que haría el gesto de UN dedo
                 this.el.setAttribute('gesture-handler', 'allowMove: false;'); 
             },
             handleRotation: function(event) {
